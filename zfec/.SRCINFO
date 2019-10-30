@@ -1,0 +1,15 @@
+pkgbase = zfec
+	pkgdesc = A fast erasure codec which can be used with the command-line, C, Python, or Haskell
+	pkgver = 1.5.3
+	pkgrel = 1
+	url = https://pypi.python.org/pypi/zfec
+	arch = i686
+	arch = x86_64
+	license = GPL
+	depends = python2>=2.7.16
+	depends = pyutil
+	source = https://files.pythonhosted.org/packages/source/z/zfec/zfec-1.5.3.tar.gz
+	sha256sums = b41bd4b0af9c6b3a78bd6734e1e4511475944164375e6241b53df518a366922b
+
+pkgname = zfec
+
