@@ -1,0 +1,16 @@
+contrib/
+fred/
+plugin-*/
+src/
+pkg/
+.gradle/
+
+*.jar
+*.zip
+*.pkg.tar
+*.c
+*.h
+*.tar.gz
+*.tar.bz2
+seednodes.fref
+IpToCountry.dat
