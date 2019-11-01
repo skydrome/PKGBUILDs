@@ -1,0 +1,3 @@
+D /run/monotone 0755 monotone monotone -
+d /var/lib/monotone 0750 monotone monotone -
+d /etc/monotone/private-keys 0750 root monotone -

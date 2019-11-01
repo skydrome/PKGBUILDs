@@ -1,0 +1,91 @@
+# Packager: Mantas Mikulėnas <grawity@gmail.com>
+# Contributor: archaurwiki <archaurwiki at i2pmail dot org>
+# Contributor: Angel Velasquez <angvp@archlinux.org>
+# Contributor: Douglas Soares de Andrade <douglas@archlinux.org>
+# Contributor: Jeff 'codemac' Mickey <jeff@archlinux.org>
+# Contributor: Dan McGee <dpmcgee@gmail.com>
+
+pkgname=monotone
+pkgver=1.1
+pkgrel=7
+pkgdesc='A free distributed version control system'
+arch=('i686' 'x86_64')
+url='http://www.monotone.ca/'
+license=('GPL')
+depends=('pcre' 'lua' 'sqlite3' 'libidn' 'botan1.10')
+makedepends=('boost')
+optdepends=('python3' 'perl')
+source=("http://www.monotone.ca/downloads/1.1/monotone-${pkgver}.tar.bz2"
+        'monotone.service'
+        'monotone.tmpfiles'
+        'monotone.sysusers'
+        'monotone.sysconfig'
+        'monotone-server-genkey'
+        'monotone-server-import'
+        'monotone-server-initdb'
+        'monotone-server-migratedb'
+        'monotone-1.1-pcre.patch'
+        'monotone-1.1-lua-integer.patch'
+        'monotone-1.1-py3.patch'
+        'monotone-1.1-negative_number_fix.patch'
+        'monotone-1.1-correct-bashcomp-path.patch')
+
+sha256sums=('f95cf60a22d4e461bec9d0e72f5d3609c9a4576fb1cc45f553d0202ce2e38c88'
+            'ea01ca9cf97ef7d056e074f3cedeb6d2e0e27cf79bb9a242265205c09a008156'
+            '5b8786f45f5ae564ef9a1e49edeff036b8ce0591fe7fd4afe3dab106621f6994'
+            '728cf463372fad88f0462b7d496219f710471aa070b6235e782bfe835d80bf59'
+            '1452ee27c00f327061fc1d3d7dbce44a5161d30c7f06634cf78341b9920e3517'
+            '342fe7524a0a49486965ec0711ad6a0d044eceba82d44627b63064856c7ea27b'
+            'be7f4a2eba1213b99495f00b01f65f7360753949bf3ecc105069c46f4fd01688'
+            '807a9a905c58dd1e3f778912ad7ea17206171d8e409630e6caacccb35f5898f8'
+            'c29624e9cea9bddb2c9cf63b927c461f30ef6c94359016cf65bcf7df95777c25'
+            'faaee7532812a759b5ea80fb75c8af2563ab39109b7e1c55630ac75832a69c34'
+            '8a1a562eb84ec41fe80b7a9e3587c7e3dc9eda894176e9c6a21299dd1618eff1'
+            '17f98a37cf3d0a761b2ebed8d9923c3125dfedd358e1ee32976525bd75b6c3bf'
+            'ff26fc899ed9ae182f649864551a2a4093cb8b7c273e5f32a8bb6ccdba7b00dd'
+            '6027689322dcd1ef44d2dd1ec03c4e30a03fab0b310a01c451b69493fc4f1ba0')
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+
+  for _f in "${source[@]}"; do
+    [[ $_f = *.patch ]] ||continue
+    msg2 "Applying $_f"
+    patch -Np1 < "../$_f"
+  done
+
+  aclocal
+  autoreconf --install
+}
+
+build() {
+  cd "${pkgname}-${pkgver}"
+
+  export DISABLE_NETWORK_TESTS=1
+
+  ./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --disable-nls --enable-pch
+
+  make
+}
+
+package() {
+  cd "${pkgname}-${pkgver}"
+
+  make DESTDIR="$pkgdir" install
+
+  install -Dm644 contrib/monotone.zsh_completion "$pkgdir/usr/share/zsh/site-functions/_mtn"
+  install -Dm644 ../monotone.service          "$pkgdir/usr/lib/systemd/system/monotone.service"
+  install -Dm644 ../monotone.tmpfiles         "$pkgdir/usr/lib/tmpfiles.d/monotone.conf"
+  install -Dm644 ../monotone.sysusers         "$pkgdir/usr/lib/sysusers.d/monotone.conf"
+  install -Dm644 ../monotone.sysconfig        "$pkgdir/etc/conf.d/monotone"
+  install -Dm755 ../monotone-server-genkey    "$pkgdir/usr/bin/monotone-server-genkey"
+  install -Dm755 ../monotone-server-import    "$pkgdir/usr/bin/monotone-server-import"
+  install -Dm755 ../monotone-server-initdb    "$pkgdir/usr/bin/monotone-server-initdb"
+  install -Dm755 ../monotone-server-migratedb "$pkgdir/usr/bin/monotone-server-migratedb"
+
+  ln -s mtn "$pkgdir/usr/bin/monotone-server"
+
+}
