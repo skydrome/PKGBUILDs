@@ -23,6 +23,7 @@ options=(!strip)
 _gitname=i2p.i2p
 _commit=master
 
+#mirror: https://gitlab.com/I2P/i2p.i2p.git
 source=("git+https://github.com/i2p/${_gitname}.git#commit=${_commit}"
         'i2prouter.service' 'i2prouter.sh' 'wrapper.config' 'router.config')
 
