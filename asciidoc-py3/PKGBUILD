@@ -1,0 +1,48 @@
+pkgname=asciidoc-py3
+pkgver=9.0.0rc1
+pkgrel=1
+pkgdesc='Text document format for short documents, articles, books and UNIX man pages. (python3 version)'
+arch=('any')
+url='https://github.com/asciidoc/asciidoc-py3'
+license=('GPL2')
+depends=('python' 'libxslt' 'docbook-xsl')
+optdepends=('imagemagick: music-filter (used in conjunction with lilypond)'
+            'source-highlight: source-highlight-filter'
+            'fop: alternative pdf generation'
+            'lynx: text generation'
+            'w3m: text generation (alternative to lynx)')
+            #'lilypond: music-filter'
+            #'dblatex: pdf generation'
+conflicts=('asciidoc')
+provides=('asciidoc')
+source=("https://github.com/asciidoc/asciidoc-py3/archive/${pkgver}.tar.gz")
+sha256sums=('8d5a22039943e43374eedaa1ea3e17a79bf29dd671918c090f535b1b3c6c0997')
+
+prepare() {
+    cd "$pkgname-$pkgver"
+    autoreconf -v
+}
+
+build() {
+    cd "$pkgname-$pkgver"
+
+    ./configure \
+        --prefix=/usr \
+        --sysconfdir=/etc
+    make
+}
+
+check() {
+    cd "$pkgname-$pkgver"
+    python3 asciidoc.py --doctest
+    python3 asciidocapi.py
+    #python3 tests/testasciidoc.py run
+}
+
+package() {
+    cd "$pkgname-$pkgver"
+
+    make install docs DESTDIR="$pkgdir"
+    install -Dm644 asciidocapi.py \
+        "$pkgdir/usr/lib/python3.8/site-packages/asciidocapi.py"
+}
